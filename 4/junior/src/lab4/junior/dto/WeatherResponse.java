@@ -1,8 +1,5 @@
 package lab4.junior.dto;
 
-/**
- * Результат запроса погоды: минимум два показателя (температура, влажность).
- */
 public class WeatherResponse {
 
     private String city;

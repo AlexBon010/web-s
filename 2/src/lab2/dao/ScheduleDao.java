@@ -15,7 +15,6 @@ public class ScheduleDao {
         this.em = em;
     }
 
-    /** Преподаватели, работающие в заданный день недели в заданной аудитории */
     public List<Teacher> findTeachersByDayAndRoom(int dayOfWeek, String room) {
         TypedQuery<Teacher> q = em.createQuery(
                 "SELECT DISTINCT t FROM Teacher t " +
@@ -27,7 +26,6 @@ public class ScheduleDao {
         return q.getResultList();
     }
 
-    /** Преподаватели, которые не ведут занятия в заданный день недели */
     public List<Teacher> findTeachersNotTeachingOnDay(int dayOfWeek) {
         TypedQuery<Teacher> q = em.createQuery(
                 "SELECT t FROM Teacher t WHERE t.id NOT IN (" +
@@ -37,7 +35,6 @@ public class ScheduleDao {
         return q.getResultList();
     }
 
-    /** Дни недели, в которых проводится заданное количество занятий */
     @SuppressWarnings("unchecked")
     public List<Integer> findDaysWithClassCount(int count) {
         List<?> raw = em.createNativeQuery(
@@ -48,7 +45,6 @@ public class ScheduleDao {
         return raw.stream().map(o -> ((Number) o).intValue()).collect(Collectors.toList());
     }
 
-    /** Дни недели, в которых занято заданное количество аудиторий */
     @SuppressWarnings("unchecked")
     public List<Integer> findDaysWithRoomCount(int count) {
         List<?> raw = em.createNativeQuery(

@@ -90,8 +90,8 @@ public class Student {
     }
 
     public enum StudentStatus {
-        ENROLLED,   // зачислен
-        EXPELLED,   // отчислен
-        TRANSFERRED // переведён на другой факультет
+        ENROLLED,
+        EXPELLED,
+        TRANSFERRED
     }
 }

@@ -5,7 +5,6 @@ import lab2.entity.*;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
-/** Заполняет БД тестовыми данными, если таблицы пусты. */
 public class DataInit {
 
     private static final String[] DAY_NAMES = { "", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота" };

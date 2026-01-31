@@ -53,12 +53,21 @@
 
     <build>
         <directory>${project.basedir}/../build/2</directory>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/resources</directory>
+            </resource>
+        </resources>
         <finalName>hibernate-lab2</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.2</version>
+                <configuration>
+                    <warSourceDirectory>src/webapp</warSourceDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>
