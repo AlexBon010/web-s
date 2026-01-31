@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>BUY — Мои товары</title>
+    <style>
+        body { margin: 0; font-family: sans-serif; }
+        .header { background: #2d2d2d; color: #fff; padding: 12px 24px; display: flex; justify-content: space-between; }
+        .header a { color: #fff; text-decoration: none; }
+        .content { max-width: 600px; margin: 24px auto; padding: 24px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; background: #2563eb; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+        #myList { margin-top: 24px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="/" class="logo">BUY</a>
+        <a href="/profile">Личный кабинет</a>
+    </header>
+    <main class="content">
+        <h1>Мои товары</h1>
+        <h2>Добавить новый товар</h2>
+        <form id="form">
+            <div class="form-group">
+                <label>Название товара</label>
+                <input type="text" name="title" required>
+            </div>
+            <div class="form-group">
+                <label>Цена товара</label>
+                <input type="text" name="price" required>
+            </div>
+            <div class="form-group">
+                <label>Город</label>
+                <select name="city">
+                    <option value="">Город не выбран</option>
+                    <option value="Минск">Минск</option>
+                    <option value="Гомель">Гомель</option>
+                    <option value="Витебск">Витебск</option>
+                    <option value="Гродно">Гродно</option>
+                    <option value="Брест">Брест</option>
+                    <option value="Могилёв">Могилёв</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Описание товара</label>
+                <textarea name="description" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Первая фотография</label>
+                <input type="file" id="photo1" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>Вторая фотография</label>
+                <input type="file" id="photo2" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>Третья фотография</label>
+                <input type="file" id="photo3" accept="image/*">
+            </div>
+            <button type="submit">Добавить</button>
+        </form>
+        <div id="myList">Не найдено</div>
+    </main>
+    <script th:src="@{/app.js}"></script>
+    <script>
+        fetchApi('/api/users/me').then(function(r) { if (!r.ok) window.location.href = '/login'; });
+        function toBase64(file) {
+            return new Promise(function(res, rej) {
+                var r = new FileReader();
+                r.onload = function() { res(r.result); };
+                r.onerror = rej;
+                r.readAsDataURL(file);
+            });
+        }
+        function extractBase64(dataUrl) {
+            if (!dataUrl || !dataUrl.startsWith('data:')) return null;
+            var i = dataUrl.indexOf(',');
+            return i >= 0 ? dataUrl.substring(i + 1) : null;
+        }
+        document.getElementById('form').onsubmit = function(e) {
+            e.preventDefault();
+            var f = this;
+            var body = { title: f.title.value, price: f.price.value, city: f.city.value || 'Минск', description: f.description.value };
+            Promise.all([
+                document.getElementById('photo1').files[0] ? toBase64(document.getElementById('photo1').files[0]) : null,
+                document.getElementById('photo2').files[0] ? toBase64(document.getElementById('photo2').files[0]) : null,
+                document.getElementById('photo3').files[0] ? toBase64(document.getElementById('photo3').files[0]) : null
+            ]).then(function(arr) {
+                if (arr[0]) body.photo1Base64 = extractBase64(arr[0]);
+                if (arr[1]) body.photo2Base64 = extractBase64(arr[1]);
+                if (arr[2]) body.photo3Base64 = extractBase64(arr[2]);
+                return fetchApi('/api/listings', { method: 'POST', body: JSON.stringify(body) });
+            }).then(function(r) { if (r.ok) location.reload(); });
+        };
+        fetchApi('/api/listings/my').then(function(r) {
+            if (!r.ok) return;
+            return r.json();
+        }).then(function(data) {
+            if (!data || !data.content || data.content.length === 0) return;
+            var html = '';
+            data.content.forEach(function(item) {
+                var img = item.photo1Base64 ? '<img src="data:image/jpeg;base64,' + item.photo1Base64 + '" style="max-width:100px;max-height:80px;">' : '';
+                html += '<p>' + img + ' ' + item.title + ' — ' + item.price + ' <a href="/listings/' + item.id + '">Открыть</a></p>';
+            });
+            document.getElementById('myList').innerHTML = html;
+        });
+    </script>
+</body>
+</html>

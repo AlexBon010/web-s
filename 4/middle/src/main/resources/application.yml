@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: buy-middle
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/lab4middle}
+    username: ${DB_USER:lab2}
+    password: ${DB_PASSWORD:lab2}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  thymeleaf:
+    cache: false
+
+server:
+  port: 8080
+
+jwt:
+  secret: ${JWT_SECRET:buy-middle-secret-key-min-256-bits-for-hs256-please-change-in-production}
+  expiration-ms: 86400000

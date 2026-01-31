@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>BUY — Личный кабинет</title>
+    <style>
+        body { margin: 0; font-family: sans-serif; }
+        .header { background: #2d2d2d; color: #fff; padding: 12px 24px; display: flex; justify-content: space-between; }
+        .header a { color: #fff; text-decoration: none; }
+        .content { max-width: 500px; margin: 24px auto; padding: 24px; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; background: #e5e7eb; object-fit: cover; }
+        .form-group { margin-bottom: 16px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; background: #2563eb; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="/" class="logo">BUY</a>
+        <a href="/profile">Личный кабинет</a>
+    </header>
+    <main class="content">
+        <h1>Личный кабинет</h1>
+        <div id="userInfo"></div>
+        <h2>Изменить профиль</h2>
+        <form id="form">
+            <div class="form-group">
+                <label>Имя пользователя</label>
+                <input type="text" name="username" id="username">
+            </div>
+            <div class="form-group">
+                <label>Номер телефона</label>
+                <input type="tel" name="phone" id="phone">
+            </div>
+            <div class="form-group">
+                <label>Фото профиля</label>
+                <input type="file" id="photo" accept="image/*">
+            </div>
+            <button type="submit">Изменить профиль</button>
+        </form>
+        <a href="/my-items">Мои товары</a>
+    </main>
+    <script th:src="@{/app.js}"></script>
+    <script>
+        fetchApi('/api/users/me').then(function(r) {
+            if (!r.ok) { window.location.href = '/login'; return; }
+            return r.json();
+        }).then(function(u) {
+            if (!u) return;
+            document.getElementById('userInfo').innerHTML = '<p><img class="avatar" id="avatar"></p><p>' + (u.username || '') + '</p><p>' + (u.email || '') + '</p><p>' + (u.phone || '') + '</p>';
+            document.getElementById('username').value = u.username || '';
+            document.getElementById('phone').value = u.phone || '';
+            var av = document.getElementById('avatar');
+            if (u.profilePhotoBase64) av.src = u.profilePhotoBase64.startsWith('data:') ? u.profilePhotoBase64 : 'data:image/jpeg;base64,' + u.profilePhotoBase64;
+        });
+        document.getElementById('form').onsubmit = function(e) {
+            e.preventDefault();
+            var photo = document.getElementById('photo').files[0];
+            var body = { username: document.getElementById('username').value, phone: document.getElementById('phone').value };
+            if (photo) {
+                fileToBase64(photo).then(function(b64) {
+                    body.profilePhotoBase64 = b64;
+                    fetchApi('/api/users/me', { method: 'PUT', body: JSON.stringify(body) }).then(function(r) { if (r.ok) location.reload(); });
+                });
+            } else {
+                fetchApi('/api/users/me', { method: 'PUT', body: JSON.stringify(body) }).then(function(r) { if (r.ok) location.reload(); });
+            }
+        };
+    </script>
+</body>
+</html>

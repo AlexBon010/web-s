@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>BUY — Товар</title>
+    <style>
+        body { margin: 0; font-family: sans-serif; }
+        .header { background: #2d2d2d; color: #fff; padding: 12px 24px; }
+        .header a { color: #fff; text-decoration: none; }
+        .content { max-width: 600px; margin: 24px auto; padding: 24px; }
+        .img { max-width: 100%; max-height: 300px; }
+        .price { font-size: 1.5em; color: #059669; font-weight: 600; }
+        a { color: #2563eb; }
+    </style>
+</head>
+<body>
+    <header class="header"><a href="/">BUY</a></header>
+    <main class="content">
+        <div id="detail"></div>
+        <p><a href="#" id="sellerLink">Продавец</a></p>
+    </main>
+    <script th:src="@{/app.js}"></script>
+    <script>
+        var id = window.location.pathname.split('/').pop();
+        fetchApi('/api/listings/' + id).then(function(r) { return r.json(); }).then(function(item) {
+            var src1 = item.photo1Base64 ? (item.photo1Base64.startsWith('data:') ? item.photo1Base64 : 'data:image/jpeg;base64,' + item.photo1Base64) : '';
+            document.getElementById('detail').innerHTML = (src1 ? '<p><img class="img" src="' + src1 + '"></p>' : '') + '<h1>' + (item.title || '') + '</h1><p class="price">' + (item.price || '') + '</p><p>' + (item.city || '') + '</p><p>' + (item.description || '') + '</p>';
+            document.getElementById('sellerLink').href = '/sellers/' + item.sellerId;
+            document.getElementById('sellerLink').textContent = 'Продавец: ' + (item.sellerUsername || '');
+        });
+    </script>
+</body>
+</html>

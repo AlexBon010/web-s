@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: weather-junior
+  thymeleaf:
+    cache: false
+
+server:
+  port: 8080
+
+# Таймаут HTTP-клиента для внешних API (мс). wttr.in может отвечать медленно.
+weather:
+  http-timeout: 20000

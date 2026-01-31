@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUY — Поиск товаров</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: sans-serif; background: #fff; color: #333; }
+        .header { background: #2d2d2d; color: #fff; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .header a { color: #fff; text-decoration: none; }
+        .logo { font-weight: bold; font-size: 1.2em; }
+        .nav { padding: 8px 24px; background: #3d3d3d; display: flex; align-items: center; justify-content: center; }
+        .content { max-width: 900px; margin: 0 auto; padding: 24px; }
+        .search-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .search-bar input[type="text"] { flex: 1; min-width: 200px; padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px; }
+        .search-bar select { padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px; min-width: 180px; }
+        .search-bar button { padding: 10px 20px; background: #2563eb; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+        .search-bar button:hover { background: #1d4ed8; }
+        .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+        .card { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+        .card-img { width: 100%; height: 180px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; }
+        .card-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .card-body { padding: 12px; }
+        .card-title { font-weight: 600; margin-bottom: 4px; }
+        .card-price { color: #059669; font-weight: 600; }
+        .card-city { color: #6b7280; font-size: 0.9em; margin-top: 4px; }
+        .card a { text-decoration: none; color: inherit; }
+        .empty { text-align: center; color: #6b7280; padding: 40px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="/" class="logo">BUY</a>
+        <a href="/login" id="loginLink">Войти</a>
+        <a href="/profile" id="profileLink" style="display:none;">Личный кабинет</a>
+    </header>
+    <nav class="nav"><span>BUY</span></nav>
+    <main class="content">
+        <h1>Поиск товаров</h1>
+        <p>Поиск по объявлениям</p>
+        <div class="search-bar">
+            <input type="text" id="q" placeholder="Ключевые слова">
+            <select id="city">
+                <option value="">Город не выбран</option>
+                <option value="Минск">Минск</option>
+                <option value="Гомель">Гомель</option>
+                <option value="Витебск">Витебск</option>
+                <option value="Гродно">Гродно</option>
+                <option value="Брест">Брест</option>
+                <option value="Могилёв">Могилёв</option>
+            </select>
+            <button type="button" id="searchBtn">Показать погоду</button>
+        </div>
+        <div id="loader" style="display:none;">Загрузка...</div>
+        <div class="cards" id="cards"></div>
+        <div class="empty" id="empty" style="display:none;">Не найдено</div>
+    </main>
+    <script th:src="@{/app.js}"></script>
+    <script>
+        document.getElementById('searchBtn').textContent = 'Найти';
+        fetchApi('/api/users/me').then(r => { if (r.ok) { document.getElementById('loginLink').style.display = 'none'; document.getElementById('profileLink').style.display = 'inline'; } });
+        function loadListings() {
+            const q = document.getElementById('q').value;
+            const city = document.getElementById('city').value;
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('cards').innerHTML = '';
+            document.getElementById('empty').style.display = 'none';
+            fetchApi('/api/listings?q=' + encodeURIComponent(q) + '&city=' + encodeURIComponent(city) + '&size=20')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('loader').style.display = 'none';
+                    const content = document.getElementById('cards');
+                    if (!data.content || data.content.length === 0) { document.getElementById('empty').style.display = 'block'; return; }
+                    data.content.forEach(item => {
+                        const img = item.photo1Base64 ? '<img src="' + (item.photo1Base64.startsWith('data:') ? item.photo1Base64 : 'data:image/jpeg;base64,' + item.photo1Base64) + '" alt="">' : '';
+                        content.innerHTML += '<div class="card"><a href="/listings/' + item.id + '"><div class="card-img">' + img + '</div><div class="card-body"><div class="card-title">' + (item.title || '') + '</div><div class="card-price">' + (item.price || '') + '</div><div class="card-city">' + (item.city || '') + '</div></div></a></div>';
+                    });
+                })
+                .catch(() => { document.getElementById('loader').style.display = 'none'; document.getElementById('empty').style.display = 'block'; });
+        }
+        document.getElementById('searchBtn').onclick = loadListings;
+        loadListings();
+    </script>
+</body>
+</html>

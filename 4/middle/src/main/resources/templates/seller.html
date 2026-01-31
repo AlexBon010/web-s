@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>BUY — Продавец</title>
+    <style>
+        body { margin: 0; font-family: sans-serif; }
+        .header { background: #2d2d2d; color: #fff; padding: 12px 24px; }
+        .header a { color: #fff; text-decoration: none; }
+        .content { max-width: 500px; margin: 24px auto; padding: 24px; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; background: #e5e7eb; object-fit: cover; }
+    </style>
+</head>
+<body>
+    <header class="header"><a href="/">BUY</a></header>
+    <main class="content">
+        <h1>Продавец</h1>
+        <div id="seller"></div>
+    </main>
+    <script th:src="@{/app.js}"></script>
+    <script>
+        var id = window.location.pathname.split('/').pop();
+        fetchApi('/api/sellers/' + id).then(function(r) { return r.json(); }).then(function(u) {
+            var img = u.profilePhotoBase64 ? '<img class="avatar" src="' + (u.profilePhotoBase64.startsWith('data:') ? u.profilePhotoBase64 : 'data:image/jpeg;base64,' + u.profilePhotoBase64) + '">' : '';
+            document.getElementById('seller').innerHTML = img + '<p>' + (u.username || '') + '</p><p>' + (u.email || '') + '</p><p>' + (u.phone || '') + '</p>';
+        });
+    </script>
+</body>
+</html>
