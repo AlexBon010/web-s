@@ -37,6 +37,7 @@
     </dependencies>
 
     <build>
+        <directory>${project.basedir}/../build/1</directory>
         <finalName>servlets-lab1</finalName>
         <plugins>
             <plugin>

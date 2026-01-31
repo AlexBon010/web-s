@@ -11,7 +11,7 @@ RUN mvn package -DskipTests -B -q
 # Запуск в Tomcat (приложение как ROOT — http://localhost:8080/)
 FROM tomcat:9.0-jre11-temurin
 RUN rm -rf /usr/local/tomcat/webapps/*
-COPY --from=build /app/target/servlets-lab1.war /usr/local/tomcat/webapps/ROOT.war
+COPY --from=build /build/1/servlets-lab1.war /usr/local/tomcat/webapps/ROOT.war
 
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
