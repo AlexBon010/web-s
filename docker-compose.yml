@@ -5,3 +5,34 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: lab2
+      POSTGRES_PASSWORD: lab2
+      POSTGRES_DB: lab2
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lab2"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app2:
+    build:
+      context: ./2
+      dockerfile: Dockerfile
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/lab2
+      DB_USER: lab2
+      DB_PASSWORD: lab2
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+
+volumes:
+  pgdata:
